@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import pathlib
-from typing import Optional, Type
 
 import numpy as np
 import pandas as pd
@@ -7,13 +8,14 @@ from matplotlib import pyplot as plt
 
 from src.lemmatizer import LemmatizerInterface
 from src.similarity import SimilarityWrapperInterface
+from src.clap_rules import ClapRulesWrapperInterface
 
 def plot_accuracy_over_class(
     accuracy_over_class: dict[str, float],
     title: str,
     show: bool = False,
     save: bool = True,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
 ) -> None:
     plt.bar(list(accuracy_over_class.keys()), list(accuracy_over_class.values()))
     plt.xticks(rotation=90)
@@ -31,18 +33,18 @@ def plot_accuracy_over_class(
 class Validator:
     def __init__(
         self,
-        lemmatizer: Type[LemmatizerInterface],
+        lemmatizer: type[LemmatizerInterface],
     ):
-        self._lemmatizer: Type[LemmatizerInterface] = lemmatizer
+        self._lemmatizer: type[LemmatizerInterface] = lemmatizer
 
     def get_accuracy_over_label(
         self,
         ground_truth: list[str],
         markup_table: pd.DataFrame,
-        gesture2homonym: dict[str, list[str]] = dict(),
-        similarity_wrapper: Optional[Type[SimilarityWrapperInterface]] = None,
+        gesture2homonym: dict[str, list[str]] | type[ClapRulesWrapperInterface] = dict(),
+        similarity_wrapper: type[SimilarityWrapperInterface] | None = None,
     ) -> dict[str, float]:
-        class_accuracy: dict[str, float] = dict()
+        class_accuracy: dict[str, float] = {}
         for file in ground_truth:
             current_file_markup: pd.DataFrame = markup_table[markup_table.file_name == file]
             true_label: str = file[:-4]

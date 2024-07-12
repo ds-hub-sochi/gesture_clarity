@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 from abc import abstractmethod, ABC
-from typing import Union
 
 import numpy as np
 from navec import Navec
