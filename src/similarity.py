@@ -28,7 +28,7 @@ class SimilarityWrapperInterface(ABC):
 class NatashaSimilarityWrapper(SimilarityWrapperInterface):
     def __init__(
         self,
-        path_to_embeddings_dump: Union[str,pathlib.Path],
+        path_to_embeddings_dump: str | pathlib.Path,
         similarity_score: float,
     ):
         super().__init__()
