@@ -13,15 +13,15 @@ class NatashaBasedLemmatizer(LemmatizerInterface):
     def __init__(
         self,
     ):
-        self._segmenter: natasha.segment.Segmenter = Segmenter()
-        self._morph_vocab: natasha.morph.vocab.MorphVocab = MorphVocab()
-        self._emb: natasha.emb.NewsEmbedding = NewsEmbedding()
-        self._morph_tagger: natasha.morph.tagger.NewsMorphTagger = NewsMorphTagger(self._emb)
-        self._syntax_parser: natasha.syntax.NewsSyntaxParser = NewsSyntaxParser(self._emb)
+        self._segmenter: = Segmenter()
+        self._morph_vocab = MorphVocab()
+        self._emb = NewsEmbedding()
+        self._morph_tagger = NewsMorphTagger(self._emb)
+        self._syntax_parser = NewsSyntaxParser(self._emb)
 
     def lemmatize_text(self, text: str) -> str:
         text = re.sub(r'[^\w\s]', '', text)
-        doc: natasha.doc.Doc = Doc(text)
+        doc = Doc(text)
         doc.segment(self._segmenter)
         doc.tag_morph(self._morph_tagger)
 
