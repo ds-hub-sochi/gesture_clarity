@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pathlib
 from abc import abstractmethod, ABC
 from typing import Union
@@ -10,16 +12,16 @@ class SimilarityWrapperInterface(ABC):
     @abstractmethod
     def get_similarity(
         self,
-        token_1: str,
-        token_2: str,
+        first_token: str,
+        second_token: str,
     ) -> float:
         pass
 
     @abstractmethod
     def is_similar(
         self,
-        token_1: str,
-        token_2: str,
+        first_token: str,
+        second_token: str,
     ) -> bool:
         pass
 
