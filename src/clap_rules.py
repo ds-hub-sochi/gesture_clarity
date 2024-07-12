@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Type
 
 from src.lemmatizer import LemmatizerInterface
 
@@ -10,17 +11,17 @@ class ClapRulesWrapperInterface(ABC):
     def get(
         self,
         token: str,
-        defaul_value: list[str],
+        false_case_value: list[str],
     ) -> list[str]:
         pass
 
 class ClapRulesWrapper(ClapRulesWrapperInterface):
     def __init__(
         self,
-        lemmatizer: Type[LemmatizerInterface],
+        lemmatizer: type[LemmatizerInterface],
         clap_rules_dct: dict[str, list[str]],
     ):
-        self._gesture2homonym: dict[str, list[str]] = dict()
+        self._gesture2homonym: dict[str, list[str]] = {}
 
         for keys in clap_rules_dct:
             for key in keys.split('/'):
@@ -41,15 +42,15 @@ class ClapRulesWrapper(ClapRulesWrapperInterface):
         while has_difference:
             gesture2homonym_copy: dict[str, list[str]] = deepcopy(self._gesture2homonym)
             
-            for key in self._gesture2homonym:
-                for homonym in self._gesture2homonym[key]:
-                    temp_lst = self._gesture2homonym[homonym] + self._gesture2homonym[key]
+            for key, homonym_lst in self._gesture2homonym.items():
+                for homonym in homonym_lst:
+                    temp_lst = self._gesture2homonym[homonym] + homonym_lst
                     self._gesture2homonym[homonym] = list(set(temp_lst))
                     self._gesture2homonym[key] = list(set(temp_lst))
         
             has_difference = False
-            for key in self._gesture2homonym:
-                if (sorted(self._gesture2homonym[key]) != sorted(gesture2homonym_copy[key])):
+            for key, homonym_lst in self._gesture2homonym.items():
+                if (sorted(homonym_lst) != sorted(gesture2homonym_copy[key])):
                     has_difference = True
                     break
 
