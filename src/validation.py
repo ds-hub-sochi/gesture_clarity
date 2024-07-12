@@ -41,11 +41,15 @@ class Validator:
         self,
         ground_truth: list[str],
         markup_table: pd.DataFrame,
-        gesture2homonym: dict[str, list[str]] | type[ClapRulesWrapperInterface] = dict(),
+        gesture2homonym: dict[str, list[str]] | type[ClapRulesWrapperInterface] | None = None,
         similarity_wrapper: type[SimilarityWrapperInterface] | None = None,
     ) -> dict[str, float]:
+        if gesture2homonym is None:
+            gesture2homonym = {}
+    
         class_accuracy: dict[str, float] = {}
-        for file in ground_truth:
+        
+        for file in ground_truth: # pylint: disable=[too-many-nested-blocks]
             current_file_markup: pd.DataFrame = markup_table[markup_table.file_name == file]
             true_label: str = file[:-4]
         
