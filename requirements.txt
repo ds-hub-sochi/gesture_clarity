@@ -2,6 +2,7 @@
 pre-commit==3.0.4
 
 # external requirements
+click
 natasha
 navec
 matplotlib
