@@ -13,7 +13,7 @@ class NatashaBasedLemmatizer(LemmatizerInterface):
     def __init__(
         self,
     ):
-        self._segmenter: = Segmenter()
+        self._segmenter = Segmenter()
         self._morph_vocab = MorphVocab()
         self._emb = NewsEmbedding()
         self._morph_tagger = NewsMorphTagger(self._emb)
