@@ -1,5 +1,6 @@
 import pathlib
 from abc import abstractmethod, ABC
+from typing import Union
 
 import numpy as np
 from navec import Navec
@@ -7,17 +8,25 @@ from navec import Navec
 
 class SimilarityWrapperInterface(ABC):
     @abstractmethod
-    def get_similarity(token_1: str, token_2: str) -> float:
+    def get_similarity(
+        self,
+        token_1: str,
+        token_2: str,
+    ) -> float:
         pass
 
     @abstractmethod
-    def is_similar(token_1: str, token_2: str) -> bool:
+    def is_similar(
+        self,
+        token_1: str,
+        token_2: str,
+    ) -> bool:
         pass
 
 class NatashaSimilarityWrapper(SimilarityWrapperInterface):
     def __init__(
         self,
-        path_to_embeddings_dump: str | pathlib.Path,
+        path_to_embeddings_dump: Union[str,pathlib.Path],
         similarity_score: float,
     ):
         super().__init__()
