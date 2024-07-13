@@ -93,4 +93,4 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     
 
 if __name__ == '__main__':
-    validate_markup()
+    validate_markup()  # pylint: disable=[no-value-for-parameter]
