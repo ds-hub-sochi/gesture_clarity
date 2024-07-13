@@ -11,23 +11,37 @@ from src.similarity import SimilarityWrapperInterface
 from src.clap_rules import ClapRulesWrapperInterface
 
 def plot_accuracy_over_class(
-    accuracy_over_class: dict[str, float],
-    title: str,
+    accuracy_over_label: pd.Series,
     show: bool = False,
-    save: bool = True,
-    save_path: str | None = None,
+    save_dir_path: pathlib.Path | str | None = None,
 ) -> None:
-    plt.bar(list(accuracy_over_class.keys()), list(accuracy_over_class.values()))
+    columns = list(accuracy_over_label.index)
+    title = 'Accuracy относительно класса \n' + \
+            f'{accuracy_over_label.type} \n ' + \
+            f'Среднее значение accyracy {round(accuracy_over_label.mean_accuracy, 3)}'
+
+    columns.remove('type')
+    columns.remove('mean_accuracy')
+
+    label2value: dict[str, float] = {}
+    for label in columns:
+        label2value[label] = accuracy_over_label[label]
+    label2value = dict(sorted(label2value.items(), key=lambda item: item[1]))
+
+    plt.bar(list(label2value.keys()), list(label2value.values()))
     plt.xticks(rotation=90)
 
-    average_accuracy: float = np.mean(list(accuracy_over_class.values()))
-    plt.title(title + '\n' + f'average accuracy = {round(average_accuracy, 3)}')
+    plt.title(title)
 
     if show:
         plt.show()
 
-    if save:
-        plt.savefig(str(pathlib.Path(save_path).absolute()))
+    if save_dir_path is not None:
+        plt.savefig(
+            str(pathlib.Path(save_dir_path).joinpath(f"{accuracy_over_label['type'].replace(' ', '_')}.png")),
+            bbox_inches="tight",
+        )
+    plt.close()
 
 
 class Validator:
