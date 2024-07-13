@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import pathlib
@@ -57,7 +59,7 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         result_dct[label] = []
     result_dct["mean_accuracy"] = []
     
-    with open(clap_rules_path, 'r', encodeng='utf-8') as f:
+    with open(clap_rules_path, 'r', encoding='utf-8') as f:
         clap_rules_dct = json.load(f)
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
     
@@ -68,7 +70,7 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         result_dct[label].append(accuracy_over_label[label])
     result_dct["mean_accuracy"].append(np.mean(list(accuracy_over_label.values())))
         
-    with open(clap_rules_extended_path, 'r', encodeng='utf-8') as f:
+    with open(clap_rules_extended_path, 'r', encoding='utf-8') as f:
         clap_rules_dct = json.load(f)
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
 
