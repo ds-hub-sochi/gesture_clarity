@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 
-import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
