@@ -2,7 +2,6 @@ import json
 import os
 import pathlib
 import subprocess
-from copy import deepcopy
 
 import click
 import numpy as np
@@ -22,7 +21,7 @@ sns.set()
 @click.argument('clap_rules_path', type=click.Path(exists=True))
 @click.argument('clap_rules_extended_path', type=click.Path(exists=True))
 @click.argument('similarity_rate', type=float)
-def validate_markup(
+def validate_markup(  # pylint: disable=[too-many-locals]
     markup_table_path,
     clap_rules_path,
     clap_rules_extended_path,
@@ -32,13 +31,14 @@ def validate_markup(
 
     embeddings_dump_path: pathlib.Path = repository_dir_path.joinpath('data/raw/embeddings/navec_hudlit_v1_12B_500K_300d_100q.tar')
     if not os.path.exists(embeddings_dump_path):
-        result = subprocess.run(
+        _ = subprocess.run(
             [
                 'wget',
                 'https://storage.yandexcloud.net/natasha-navec/packs/navec_hudlit_v1_12B_500K_300d_100q.tar',
                 '-O',
                 f'{str(embeddings_dump_path)}',
-            ]
+            ],
+            check=False,
         )
 
     similarity_wrapper: NatashaSimilarityWrapper = NatashaSimilarityWrapper(embeddings_dump_path, similarity_rate)
@@ -57,7 +57,7 @@ def validate_markup(
         result_dct[label] = []
     result_dct["mean_accuracy"] = []
     
-    with open(clap_rules_path, 'r') as f:
+    with open(clap_rules_path, 'r', encodeng='utf-8') as f:
         clap_rules_dct = json.load(f)
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
     
@@ -68,7 +68,7 @@ def validate_markup(
         result_dct[label].append(accuracy_over_label[label])
     result_dct["mean_accuracy"].append(np.mean(list(accuracy_over_label.values())))
         
-    with open(clap_rules_extended_path, 'r') as f:
+    with open(clap_rules_extended_path, 'r', encodeng='utf-8') as f:
         clap_rules_dct = json.load(f)
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
 
