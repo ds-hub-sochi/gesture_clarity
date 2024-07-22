@@ -67,6 +67,8 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     
     result_dct["type"].append("c использованием словаря схлопываний и семантической близости")
     for label in labels:
+        if label not in result_dct:
+            result_dct[label] = []
         result_dct[label].append(accuracy_over_label[label])
     result_dct["mean_accuracy"].append(np.mean(list(accuracy_over_label.values())))
         

@@ -4,10 +4,12 @@ import pathlib
 
 import pandas as pd
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 from src.lemmatizer import LemmatizerInterface
 from src.similarity import SimilarityWrapperInterface
 from src.clap_rules import ClapRulesWrapperInterface
+
 
 def plot_accuracy_over_class(
     accuracy_over_label: pd.Series,
@@ -62,9 +64,10 @@ class Validator:
     
         class_accuracy: dict[str, float] = {}
         
-        for file in ground_truth: # pylint: disable=[too-many-nested-blocks]
+        for file in tqdm(ground_truth): # pylint: disable=[too-many-nested-blocks]
             current_file_markup: pd.DataFrame = markup_table[markup_table.file_name == file]
             true_label: str = file[:-4]
+            true_label_normalized = self._lemmatizer.lemmatize_text(true_label)
         
             candidates: list[str] = list(current_file_markup['OUTPUT:translation'])
             candidates = [self._lemmatizer.lemmatize_text(candidate) for candidate in candidates]
@@ -74,7 +77,9 @@ class Validator:
             else:
                 for candidate in candidates:
                     found = False
-                    for ground_truth_homonym in gesture2homonym.get(true_label, [true_label]):
+                    homonyms = list(set(gesture2homonym.get(true_label_normalized, [true_label_normalized])))
+                    homonyms += list(set(gesture2homonym.get(true_label, [true_label])))
+                    for ground_truth_homonym in list(set(homonyms)):
                         for candidate_homonym in gesture2homonym.get(candidate, [candidate]):
                             if similarity_wrapper.is_similar(candidate_homonym, ground_truth_homonym):
                                 if true_label not in class_accuracy:

@@ -20,6 +20,7 @@ class NatashaBasedLemmatizer(LemmatizerInterface):
         self._syntax_parser = NewsSyntaxParser(self._emb)
 
     def lemmatize_text(self, text: str) -> str:
+        text = text.lower()
         text = re.sub(r'[^\w\s]', '', text)
         doc = Doc(text)
         doc.segment(self._segmenter)
