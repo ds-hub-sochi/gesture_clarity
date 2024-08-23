@@ -10,10 +10,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from src.validation import Validator, plot_accuracy_over_class
-from src.lemmatizer import NatashaBasedLemmatizer
-from src.similarity import NatashaSimilarityWrapper
-from src.clap_rules import ClapRulesWrapper
+from src.utils.validation import Validator, plot_accuracy_over_class
+from src.utils.lemmatizer import NatashaBasedLemmatizer
+from src.utils.similarity import NatashaSimilarityWrapper
+from src.utils.clap_rules import ClapRulesWrapper
 
 sns.set()
 
@@ -29,9 +29,10 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     clap_rules_extended_path,
     similarity_rate,
 ) -> None:
-    repository_dir_path: pathlib.Path = pathlib.Path(__file__).parent.resolve()
+    repository_dir_path: pathlib.Path = pathlib.Path(__file__).parent.parent.parent.resolve()
+    print(repository_dir_path)
 
-    embeddings_dump_path: pathlib.Path = repository_dir_path.joinpath('data/raw/embeddings/navec_hudlit_v1_12B_500K_300d_100q.tar')
+    embeddings_dump_path: pathlib.Path = repository_dir_path / './data/additional/embeddings/navec_hudlit_v1_12B_500K_300d_100q.tar'
     if not os.path.exists(embeddings_dump_path):
         _ = subprocess.run(
             [
