@@ -48,20 +48,17 @@ def plot_accuracy_over_class(
 class Validator:
     def __init__(
         self,
-        lemmatizer: type[LemmatizerInterface],
+        lemmatizer: LemmatizerInterface,
     ):
-        self._lemmatizer: type[LemmatizerInterface] = lemmatizer
+        self._lemmatizer: LemmatizerInterface = lemmatizer
 
     def get_accuracy_over_label(
         self,
         ground_truth: list[str],
         markup_table: pd.DataFrame,
-        gesture2homonym: dict[str, list[str]] | type[ClapRulesWrapperInterface] | None = None,
-        similarity_wrapper: type[SimilarityWrapperInterface] | None = None,
-    ) -> dict[str, float]:
-        if gesture2homonym is None:
-            gesture2homonym = {}
-    
+        gesture2homonyms: ClapRulesWrapperInterface,
+        similarity_wrapper: SimilarityWrapperInterface | None = None,
+    ) -> dict[str, float]:    
         class_accuracy: dict[str, float] = {}
         
         for file in tqdm(ground_truth): # pylint: disable=[too-many-nested-blocks]
@@ -71,16 +68,20 @@ class Validator:
         
             candidates: list[str] = list(current_file_markup['OUTPUT:translation'])
             candidates = [self._lemmatizer.lemmatize_text(candidate) for candidate in candidates]
+
+            if true_label_normalized == 'умение':
+                print(candidates)
     
             if similarity_wrapper is None:
                 class_accuracy[true_label] = candidates.count(true_label)
             else:
                 for candidate in candidates:
-                    found = False
-                    homonyms = list(set(gesture2homonym.get(true_label_normalized, [true_label_normalized])))
-                    homonyms += list(set(gesture2homonym.get(true_label, [true_label])))
-                    for ground_truth_homonym in list(set(homonyms)):
-                        for candidate_homonym in gesture2homonym.get(candidate, [candidate]):
+                    found: bool = False
+                    homonyms_set: set[str] = set(gesture2homonyms.get(true_label_normalized))
+                    homonyms_set.update(set(gesture2homonyms.get(true_label)))
+
+                    for ground_truth_homonym in list(homonyms_set):
+                        for candidate_homonym in gesture2homonyms.get(candidate):
                             if similarity_wrapper.is_similar(candidate_homonym, ground_truth_homonym):
                                 if true_label not in class_accuracy:
                                     class_accuracy[true_label] = 0

@@ -31,6 +31,7 @@ class NatashaSimilarityWrapper(SimilarityWrapperInterface):
         similarity_score: float,
     ):
         super().__init__()
+
         self._embeddings: Navec = Navec.load(path_to_embeddings_dump)
         self._similatity_score: float = similarity_score
 

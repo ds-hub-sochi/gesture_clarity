@@ -6,20 +6,28 @@ from natasha import Segmenter, MorphVocab, NewsEmbedding, NewsMorphTagger, NewsS
 
 class LemmatizerInterface(ABC):
     @abstractmethod
-    def lemmatize_text(self, text: str) -> str:
+    def lemmatize_text(
+        self,
+        text: str,
+    ) -> str:
         pass
 
 class NatashaBasedLemmatizer(LemmatizerInterface):
     def __init__(
         self,
     ):
+        super().__init__()
+
         self._segmenter = Segmenter()
         self._morph_vocab = MorphVocab()
         self._emb = NewsEmbedding()
         self._morph_tagger = NewsMorphTagger(self._emb)
         self._syntax_parser = NewsSyntaxParser(self._emb)
 
-    def lemmatize_text(self, text: str) -> str:
+    def lemmatize_text(
+        self,
+        text: str,
+    ) -> str:
         text = text.lower()
         text = re.sub(r'[^\w\s]', '', text)
         doc = Doc(text)

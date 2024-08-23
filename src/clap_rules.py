@@ -11,16 +11,17 @@ class ClapRulesWrapperInterface(ABC):
     def get(
         self,
         token: str,
-        false_case_value: list[str],
     ) -> list[str]:
         pass
 
 class ClapRulesWrapper(ClapRulesWrapperInterface):
     def __init__(
         self,
-        lemmatizer: type[LemmatizerInterface],
+        lemmatizer: LemmatizerInterface,
         clap_rules_dct: dict[str, list[str]],
     ):
+        super().__init__()
+
         self._gesture2homonym: dict[str, list[str]] = {}
 
         for keys in clap_rules_dct:
@@ -57,7 +58,6 @@ class ClapRulesWrapper(ClapRulesWrapperInterface):
     def get(
         self,
         token: str,
-        false_case_value: list[str],
     ) -> list[str]:
-        return self._gesture2homonym[token] if token in self._gesture2homonym else false_case_value
+        return self._gesture2homonym[token] if token in self._gesture2homonym else [token]
         
