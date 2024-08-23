@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-from src.lemmatizer import LemmatizerInterface
+from src.utils.lemmatizer import LemmatizerInterface
 
 
 class ClapRulesWrapperInterface(ABC):

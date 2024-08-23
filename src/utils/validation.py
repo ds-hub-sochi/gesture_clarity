@@ -6,9 +6,9 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from src.lemmatizer import LemmatizerInterface
-from src.similarity import SimilarityWrapperInterface
-from src.clap_rules import ClapRulesWrapperInterface
+from src.utils.lemmatizer import LemmatizerInterface
+from src.utils.similarity import SimilarityWrapperInterface
+from src.utils.clap_rules import ClapRulesWrapperInterface
 
 
 def plot_accuracy_over_class(
@@ -68,9 +68,6 @@ class Validator:
         
             candidates: list[str] = list(current_file_markup['OUTPUT:translation'])
             candidates = [self._lemmatizer.lemmatize_text(candidate) for candidate in candidates]
-
-            if true_label_normalized == 'умение':
-                print(candidates)
     
             if similarity_wrapper is None:
                 class_accuracy[true_label] = candidates.count(true_label)
