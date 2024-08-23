@@ -12,7 +12,7 @@ python main.py путь-до-файла-с-разметкой путь-до-сл
 Например, 
 
 ```bash
-python main.py ./res_marks_sberai_p1.tsv ./data/raw/clap_rules/clap_rules.json ./data/raw/clap_rules/clap_rules_extended.json 0.7
+python ./src/cli/validate_markup.py ./res_marks_sberai_p1.tsv ./data/raw/clap_rules/clap_rules.json ./data/raw/clap_rules/clap_rules_extended.json 0.7
 ```
 
 Здесь расширенный словарь схлопываний - это словарь, в который добавили потенциально приемлимые, но еще не подтвержденные схлопывания, например, течение <-> длина
