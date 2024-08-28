@@ -14,6 +14,7 @@ class ClapRulesWrapperInterface(ABC):
     ) -> list[str]:
         pass
 
+
 class ClapRulesWrapper(ClapRulesWrapperInterface):
     def __init__(
         self,
@@ -24,31 +25,31 @@ class ClapRulesWrapper(ClapRulesWrapperInterface):
 
         self._gesture2homonym: dict[str, list[str]] = {}
 
-        for keys in clap_rules_dct:
-            for key in keys.split('/'):
-                key = lemmatizer.lemmatize_text(key)
-                for value in clap_rules_dct[keys]:
-                    value = lemmatizer.lemmatize_text(value)
-                    if key not in self._gesture2homonym:
-                        self._gesture2homonym[key] = []
-                    self._gesture2homonym[key].append(value)
-    
-                    if value not in self._gesture2homonym:
-                        self._gesture2homonym[value] = []
-                    self._gesture2homonym[value].append(key)
+        for keys, values in clap_rules_dct.items():
+            for current_key in keys.split('/'):
+                current_key = lemmatizer.lemmatize_text(current_key)
+                for current_value in values:
+                    current_value = lemmatizer.lemmatize_text(current_value)
+                    if current_key not in self._gesture2homonym:
+                        self._gesture2homonym[current_key] = []
+                    self._gesture2homonym[current_key].append(current_value)
+
+                    if current_value not in self._gesture2homonym:
+                        self._gesture2homonym[current_value] = []
+                    self._gesture2homonym[current_value].append(current_key)
 
         has_difference: bool = True
 
         # maybe it can converge in 1 iteration only, but I'm not sure.
         while has_difference:
             gesture2homonym_copy: dict[str, list[str]] = deepcopy(self._gesture2homonym)
-            
+
             for key, homonym_lst in self._gesture2homonym.items():
                 for homonym in homonym_lst:
                     temp_lst = self._gesture2homonym[homonym] + homonym_lst
                     self._gesture2homonym[homonym] = list(set(temp_lst))
                     self._gesture2homonym[key] = list(set(temp_lst))
-        
+
             has_difference = False
             for key, homonym_lst in self._gesture2homonym.items():
                 if (sorted(homonym_lst) != sorted(gesture2homonym_copy[key])):
@@ -60,4 +61,3 @@ class ClapRulesWrapper(ClapRulesWrapperInterface):
         token: str,
     ) -> list[str]:
         return self._gesture2homonym[token] if token in self._gesture2homonym else [token]
-        
