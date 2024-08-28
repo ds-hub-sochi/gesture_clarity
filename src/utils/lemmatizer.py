@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 
-from natasha import Segmenter, MorphVocab, NewsEmbedding, NewsMorphTagger, NewsSyntaxParser, Doc
+from natasha import Doc, MorphVocab, NewsEmbedding, NewsMorphTagger, NewsSyntaxParser, Segmenter
 
 
 class LemmatizerInterface(ABC):
@@ -11,6 +11,7 @@ class LemmatizerInterface(ABC):
         text: str,
     ) -> str:
         pass
+
 
 class NatashaBasedLemmatizer(LemmatizerInterface):
     def __init__(
