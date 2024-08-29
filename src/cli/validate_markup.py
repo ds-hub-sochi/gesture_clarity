@@ -9,7 +9,8 @@ import click
 import pandas as pd
 import seaborn as sns
 
-from src.utils.validation import Validator, plot_accuracy_over_class
+from src.utils.graphs import plot_accuracy_over_class
+from src.utils.validation import Validator
 from src.utils.lemmatizer import NatashaBasedLemmatizer
 from src.utils.similarity import NatashaSimilarityWrapper
 from src.utils.clap_rules import ClapRulesWrapper
@@ -50,7 +51,6 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     validator: Validator = Validator(lemmatizer)
 
     markup_table: pd.DataFrame = pd.read_csv(markup_table_path, sep='\t')
-    unique_files: list[str] = list(set(markup_table.file_name))
 
     with open(corrupted_cases_path, 'r', encoding='utf-8') as f:
         corrupted_cases_healer: dict[str, str] = json.load(f)
@@ -60,7 +60,6 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
     
     accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
-        unique_files,
         markup_table,
         clap_rules_wrapper,
         similarity_wrapper,
