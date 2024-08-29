@@ -65,7 +65,7 @@ def plot_markups_comparison(
 
     figure_width: int = math.ceil(len(common_keys) * 0.5)
     figure_height: int = math.ceil(figure_width * 3 / 4)
-    figure = plt.figure(
+    figure = plt.figure(  # pylint: disable=[unused-variable]
         figsize=(
             figure_width,
             figure_height,
