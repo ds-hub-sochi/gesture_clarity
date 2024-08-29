@@ -6,7 +6,6 @@ import pathlib
 import subprocess
 
 import click
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -52,10 +51,6 @@ def validate_markup(  # pylint: disable=[too-many-locals]
 
     markup_table: pd.DataFrame = pd.read_csv(markup_table_path, sep='\t')
     unique_files: list[str] = list(set(markup_table.file_name))
-
-    result_dct: dict[str, list[float] | list[str]]  = {}
-
-    mean_accuracy: float = 0.0
 
     with open(corrupted_cases_path, 'r', encoding='utf-8') as f:
         corrupted_cases_healer: dict[str, str] = json.load(f)
