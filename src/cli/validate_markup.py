@@ -45,19 +45,28 @@ def validate_markup(  # pylint: disable=[too-many-locals]
             check=False,
         )
 
-    similarity_wrapper: NatashaSimilarityWrapper = NatashaSimilarityWrapper(embeddings_dump_path, similarity_rate)
+    similarity_wrapper: NatashaSimilarityWrapper = NatashaSimilarityWrapper(
+        embeddings_dump_path,
+        similarity_rate,
+    )
 
     lemmatizer: NatashaBasedLemmatizer = NatashaBasedLemmatizer()
     validator: Validator = Validator(lemmatizer)
 
-    markup_table: pd.DataFrame = pd.read_csv(markup_table_path, sep='\t')
+    markup_table: pd.DataFrame = pd.read_csv(
+        markup_table_path,
+        sep='\t',
+    )
 
     with open(corrupted_cases_path, 'r', encoding='utf-8') as f:
         corrupted_cases_healer: dict[str, str] = json.load(f)
     
     with open(clap_rules_path, 'r', encoding='utf-8') as f:
         clap_rules_dct = json.load(f)
-        clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
+        clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(
+            lemmatizer,
+            clap_rules_dct,
+        )
     
     accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
         markup_table,
@@ -67,17 +76,32 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     )
 
     table_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/tables")
-    table_dir_path.mkdir(parents=True, exist_ok=True)
+    table_dir_path.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     result_df: pd.DataFrame = pd.DataFrame.from_dict(
         {key: [value] for key, value in accuracy_over_label.items()}
     )
-    result_df.to_csv(table_dir_path.joinpath(f"таблица_{title}.csv"))
+    result_df.to_csv(
+        table_dir_path.joinpath(f"таблица_{title}.csv"),
+        index=False,
+        sep=',',
+    )
 
     plot_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/plots")
-    plot_dir_path.mkdir(parents=True, exist_ok=True)
+    plot_dir_path.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
     
-    plot_accuracy_over_class(accuracy_over_label, True, plot_dir_path, title)
+    plot_accuracy_over_class(
+        accuracy_over_label,
+        True,
+        plot_dir_path,
+        title,
+    )
     
 if __name__ == '__main__':
     validate_markup()  # pylint: disable=[no-value-for-parameter]
