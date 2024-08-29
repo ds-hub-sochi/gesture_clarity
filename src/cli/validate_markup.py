@@ -98,7 +98,7 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     
     plot_accuracy_over_class(
         accuracy_over_label,
-        True,
+        False,
         plot_dir_path,
         title,
     )
