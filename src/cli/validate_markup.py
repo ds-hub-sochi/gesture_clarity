@@ -6,7 +6,6 @@ import pathlib
 import subprocess
 
 import click
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -21,15 +20,15 @@ sns.set()
 @click.command()
 @click.argument('markup_table_path', type=click.Path(exists=True))
 @click.argument('clap_rules_path', type=click.Path(exists=True))
-@click.argument('clap_rules_extended_path', type=click.Path(exists=True))
 @click.argument('corrupted_cases_path', type=click.Path(exists=True))
 @click.argument('similarity_rate', type=float)
+@click.argument('title', type=str)
 def validate_markup(  # pylint: disable=[too-many-locals]
     markup_table_path: str,
     clap_rules_path: str,
-    clap_rules_extended_path: str,
     corrupted_cases_path: str,
     similarity_rate: float,
+    title: str,
 ) -> None:
     repository_dir_path: pathlib.Path = pathlib.Path(__file__).parent.parent.parent.resolve()
 
@@ -53,11 +52,6 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     markup_table: pd.DataFrame = pd.read_csv(markup_table_path, sep='\t')
     unique_files: list[str] = list(set(markup_table.file_name))
 
-    result_dct: dict[str, list[float] | list[str]]  = {}
-
-    result_dct["type"] = []
-    result_dct["mean_accuracy"] = []
-
     with open(corrupted_cases_path, 'r', encoding='utf-8') as f:
         corrupted_cases_healer: dict[str, str] = json.load(f)
     
@@ -72,42 +66,19 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         similarity_wrapper,
         corrupted_cases_healer,
     )
+
+    table_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/tables")
+    table_dir_path.mkdir(parents=True, exist_ok=True)
+
+    result_df: pd.DataFrame = pd.DataFrame.from_dict(
+        {key: [value] for key, value in accuracy_over_label.items()}
+    )
+    result_df.to_csv(table_dir_path.joinpath(f"таблица_{title}.csv"))
+
+    plot_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/plots")
+    plot_dir_path.mkdir(parents=True, exist_ok=True)
     
-    result_dct["type"].append("c использованием словаря схлопываний и семантической близости")
-    for label, label_accuracy in accuracy_over_label.items():
-        if label not in result_dct:
-            result_dct[label] = []
-        result_dct[label].append(label_accuracy)
-    result_dct["mean_accuracy"].append(float(np.mean(list(accuracy_over_label.values()))))
-        
-    with open(clap_rules_extended_path, 'r', encoding='utf-8') as f:
-        clap_rules_dct = json.load(f)
-        clap_rules_wrapper = ClapRulesWrapper(lemmatizer, clap_rules_dct)
-
-    accuracy_over_label = validator.get_accuracy_over_label(
-        unique_files,
-        markup_table,
-        clap_rules_wrapper,
-        similarity_wrapper,
-        corrupted_cases_healer,
-    )    
+    plot_accuracy_over_class(accuracy_over_label, True, plot_dir_path, title)
     
-    result_dct["type"].append("c использованием расширенного словаря схлопываний и семантической близости")
-    for label, label_accuracy in accuracy_over_label.items():
-        result_dct[label].append(label_accuracy)
-    result_dct["mean_accuracy"].append(float(np.mean(list(accuracy_over_label.values()))))
-
-    tables_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/tables")
-    tables_dir_path.mkdir(parents=True, exist_ok=True)
-
-    result_df: pd.DataFrame = pd.DataFrame.from_dict(result_dct)
-    result_df.to_csv(tables_dir_path.joinpath("таблица_качества.csv"))
-
-    plots_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/plots")
-    plots_dir_path.mkdir(parents=True, exist_ok=True)
-    for i in range(result_df.shape[0]):
-        plot_accuracy_over_class(result_df.loc[i], True, plots_dir_path)
-    
-
 if __name__ == '__main__':
     validate_markup()  # pylint: disable=[no-value-for-parameter]
