@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import scipy.stats as sps
 
-from src.utils.graphs import plot_accuracy_over_class
 from src.utils.validation import Validator
 from src.utils.lemmatizer import NatashaBasedLemmatizer
 from src.utils.similarity import NatashaSimilarityWrapper
@@ -119,4 +118,4 @@ def run_ab_tests(  # pylint: disable=[too-many-locals]
 
 
 if __name__ == '__main__':
-    run_ab_tests()
+    run_ab_tests()  # pylint: disable=[no-value-for-parameter]
