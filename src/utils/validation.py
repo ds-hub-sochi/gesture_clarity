@@ -20,9 +20,9 @@ class Validator:
         self._lemmatizer: LemmatizerInterface = lemmatizer
         self._gesture2homonyms: ClapRulesWrapperInterface = gesture2homonyms
         self._similarity_wrapper: SimilarityWrapperInterface = similarity_wrapper
-        self._corrupted_cases_healer: corrupted_cases_healer = corrupted_cases_healer
+        self._corrupted_cases_healer: dict[str, str] | None = corrupted_cases_healer
 
-    def get_accuracy_over_label(  # pylint: disable=[too-many-locals]
+    def get_accuracy_over_label(
         self,
         markup_table: pd.DataFrame,
     ) -> dict[str, float]:    
@@ -77,7 +77,7 @@ class Validator:
 
         return class_accuracy
 
-    def get_hit_table(
+    def get_hit_table(  # pylint: disable=[too-many-locals]
         self,
         markup_table: pd.DataFrame,
     ) -> np.ndarray:
