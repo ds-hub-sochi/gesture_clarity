@@ -8,7 +8,7 @@ import subprocess
 import click
 import pandas as pd
 
-from src.utils.graphs import plot_accuracy_over_class
+from src.utils.graphs import plot_markups_comparison
 from src.utils.validation import Validator
 from src.utils.lemmatizer import NatashaBasedLemmatizer
 from src.utils.similarity import NatashaSimilarityWrapper
@@ -16,13 +16,15 @@ from src.utils.clap_rules import ClapRulesWrapper
 
 
 @click.command()
-@click.argument('markup_table_path', type=click.Path(exists=True))
+@click.argument('control_markup_path', type=click.Path(exists=True))
+@click.argument('test_markup_path', type=click.Path(exists=True))
 @click.argument('clap_rules_path', type=click.Path(exists=True))
 @click.argument('corrupted_cases_path', type=click.Path(exists=True))
 @click.argument('similarity_rate', type=float)
 @click.argument('title', type=str)
-def validate_markup(  # pylint: disable=[too-many-locals]
-    markup_table_path: str,
+def compare_markups(  # pylint: disable=[too-many-locals]
+    control_markup_path: str,
+    test_markup_path: str,
     clap_rules_path: str,
     corrupted_cases_path: str,
     similarity_rate: float,
@@ -66,7 +68,7 @@ def validate_markup(  # pylint: disable=[too-many-locals]
             lemmatizer,
             clap_rules_dct,
         )
-
+    
     validator: Validator = Validator(
         lemmatizer,
         clap_rules_wrapper,
@@ -74,38 +76,33 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         corrupted_cases_healer,
     )
 
-    markup_table: pd.DataFrame = pd.read_csv(
-        markup_table_path,
+    control_markup_table: pd.DataFrame = pd.read_csv(
+        control_markup_path,
         sep='\t',
     )
+    control_accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(control_markup_table)
     
-    accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
-        markup_table,
+    test_markup_table: pd.DataFrame = pd.read_csv(
+        test_markup_path,
+        sep='\t',
     )
-
-    table_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/tables")
-    table_dir_path.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    result_df: pd.DataFrame = pd.DataFrame.from_dict(
-        {key: [value] for key, value in accuracy_over_label.items()}
-    )
-    result_df.to_csv(
-        table_dir_path.joinpath(f"таблица_{title}.csv"),
-        index=False,
-        sep=',',
-    )
+    test_accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(test_markup_table)
 
     plot_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/plots")
     plot_dir_path.mkdir(
         parents=True,
         exist_ok=True,
     )
-    
-    plot_accuracy_over_class(
-        accuracy_over_label,
+
+    common_keys: set[str] = set(control_accuracy_over_label.keys()).intersection(test_accuracy_over_label.keys())
+
+    if len(common_keys) == 0:
+        print("There are no any common keys between these 2 packs; Please, check it out then run the cli again.")
+        return
+
+    plot_markups_comparison(
+        control_accuracy_over_label,
+        test_accuracy_over_label,
         False,
         plot_dir_path,
         title,
@@ -113,4 +110,4 @@ def validate_markup(  # pylint: disable=[too-many-locals]
 
 
 if __name__ == '__main__':
-    validate_markup()  # pylint: disable=[no-value-for-parameter]
+    compare_markups()  # pylint: disable=[no-value-for-parameter]

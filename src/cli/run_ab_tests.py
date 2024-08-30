@@ -6,9 +6,10 @@ import pathlib
 import subprocess
 
 import click
+import numpy as np
 import pandas as pd
+import scipy.stats as sps
 
-from src.utils.graphs import plot_accuracy_over_class
 from src.utils.validation import Validator
 from src.utils.lemmatizer import NatashaBasedLemmatizer
 from src.utils.similarity import NatashaSimilarityWrapper
@@ -16,17 +17,19 @@ from src.utils.clap_rules import ClapRulesWrapper
 
 
 @click.command()
-@click.argument('markup_table_path', type=click.Path(exists=True))
+@click.argument('control_markup_path', type=click.Path(exists=True))
+@click.argument('test_markup_path', type=click.Path(exists=True))
 @click.argument('clap_rules_path', type=click.Path(exists=True))
 @click.argument('corrupted_cases_path', type=click.Path(exists=True))
 @click.argument('similarity_rate', type=float)
-@click.argument('title', type=str)
-def validate_markup(  # pylint: disable=[too-many-locals]
-    markup_table_path: str,
+@click.argument('test_alpha', type=float)
+def run_ab_tests(  # pylint: disable=[too-many-locals]
+    control_markup_path: str,
+    test_markup_path: str,
     clap_rules_path: str,
     corrupted_cases_path: str,
     similarity_rate: float,
-    title: str,
+    test_alpha: float,
 ) -> None:
     repository_dir_path: pathlib.Path = pathlib.Path(__file__).parent.parent.parent.resolve()
 
@@ -74,43 +77,45 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         corrupted_cases_healer,
     )
 
-    markup_table: pd.DataFrame = pd.read_csv(
-        markup_table_path,
+    control_markup_table: pd.DataFrame = pd.read_csv(
+        control_markup_path,
         sep='\t',
     )
     
-    accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
-        markup_table,
+    test_markup_table: pd.DataFrame = pd.read_csv(
+        test_markup_path,
+        sep='\t',
     )
 
-    table_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/tables")
-    table_dir_path.mkdir(
-        parents=True,
-        exist_ok=True,
+    control_hit_table: np.ndarray = validator.get_hit_table(
+        control_markup_table,
     )
-
-    result_df: pd.DataFrame = pd.DataFrame.from_dict(
-        {key: [value] for key, value in accuracy_over_label.items()}
-    )
-    result_df.to_csv(
-        table_dir_path.joinpath(f"таблица_{title}.csv"),
-        index=False,
-        sep=',',
-    )
-
-    plot_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/plots")
-    plot_dir_path.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    control_hit_table = np.mean(control_hit_table, axis=1, keepdims=True)
     
-    plot_accuracy_over_class(
-        accuracy_over_label,
-        False,
-        plot_dir_path,
-        title,
+    test_hit_table: np.ndarray = validator.get_hit_table(
+         test_markup_table,
     )
+    test_hit_table = np.mean(test_hit_table, axis=1, keepdims=True)
+
+    print('T-test is runnig; checking the equal means null hypotesis: ', end='')
+    ttest_results: sps._result_classes.TtestResult = sps.ttest_ind(
+        control_hit_table,
+        test_hit_table,
+        equal_var = False,
+        axis=0,
+        alternative='greater',
+    )
+    print('H0 was rejected' if ttest_results.pvalue > test_alpha else "H0 wasn't rejected")
+
+    print('Mann-Whitneyu test is runnig; checking the equal distrubitions null hypotesis: ', end='')
+    mannwhitneyu_results: sps._result_classes.MannwhitneyuResult = sps.mannwhitneyu(
+        control_hit_table,
+        test_hit_table,
+        axis=0,
+        alternative='greater',
+    )
+    print('H0 was rejected' if mannwhitneyu_results.pvalue > test_alpha else "H0 wasn't rejected")
 
 
 if __name__ == '__main__':
-    validate_markup()  # pylint: disable=[no-value-for-parameter]
+    run_ab_tests()  # pylint: disable=[no-value-for-parameter]
