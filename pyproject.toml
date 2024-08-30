@@ -15,5 +15,7 @@ module = [
     "natasha",
     "navec",
     "seaborn",
+    "scipy",
+    "scipy.stats",
 ]
 ignore_missing_imports = true

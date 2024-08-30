@@ -8,5 +8,6 @@ numpy
 pandas
 # local package
 pre-commit==3.0.4
+scipy
 seaborn
 tqdm
