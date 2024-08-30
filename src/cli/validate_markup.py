@@ -7,15 +7,12 @@ import subprocess
 
 import click
 import pandas as pd
-import seaborn as sns
 
 from src.utils.graphs import plot_accuracy_over_class
 from src.utils.validation import Validator
 from src.utils.lemmatizer import NatashaBasedLemmatizer
 from src.utils.similarity import NatashaSimilarityWrapper
 from src.utils.clap_rules import ClapRulesWrapper
-
-sns.set()
 
 
 @click.command()
@@ -51,28 +48,39 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     )
 
     lemmatizer: NatashaBasedLemmatizer = NatashaBasedLemmatizer()
-    validator: Validator = Validator(lemmatizer)
 
-    markup_table: pd.DataFrame = pd.read_csv(
-        markup_table_path,
-        sep='\t',
-    )
-
-    with open(corrupted_cases_path, 'r', encoding='utf-8') as f:
+    with open(
+        corrupted_cases_path,
+        'r',
+        encoding='utf-8',
+    ) as f:
         corrupted_cases_healer: dict[str, str] = json.load(f)
     
-    with open(clap_rules_path, 'r', encoding='utf-8') as f:
+    with open(
+        clap_rules_path,
+        'r',
+        encoding='utf-8',
+    ) as f:
         clap_rules_dct = json.load(f)
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(
             lemmatizer,
             clap_rules_dct,
         )
-    
-    accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
-        markup_table,
+
+    validator: Validator = Validator(
+        lemmatizer,
         clap_rules_wrapper,
         similarity_wrapper,
         corrupted_cases_healer,
+    )
+
+    markup_table: pd.DataFrame = pd.read_csv(
+        markup_table_path,
+        sep='\t',
+    )
+    
+    accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
+        markup_table,
     )
 
     table_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/tables")
@@ -102,6 +110,7 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         plot_dir_path,
         title,
     )
-    
+
+
 if __name__ == '__main__':
     validate_markup()  # pylint: disable=[no-value-for-parameter]

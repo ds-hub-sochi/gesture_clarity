@@ -7,15 +7,12 @@ import subprocess
 
 import click
 import pandas as pd
-import seaborn as sns
 
 from src.utils.graphs import plot_markups_comparison
 from src.utils.validation import Validator
 from src.utils.lemmatizer import NatashaBasedLemmatizer
 from src.utils.similarity import NatashaSimilarityWrapper
 from src.utils.clap_rules import ClapRulesWrapper
-
-sns.set()
 
 
 @click.command()
@@ -25,7 +22,7 @@ sns.set()
 @click.argument('corrupted_cases_path', type=click.Path(exists=True))
 @click.argument('similarity_rate', type=float)
 @click.argument('title', type=str)
-def validate_markup(  # pylint: disable=[too-many-locals]
+def compare_markups(  # pylint: disable=[too-many-locals]
     control_markup_path: str,
     test_markup_path: str,
     clap_rules_path: str,
@@ -53,33 +50,43 @@ def validate_markup(  # pylint: disable=[too-many-locals]
     )
 
     lemmatizer: NatashaBasedLemmatizer = NatashaBasedLemmatizer()
-    validator: Validator = Validator(lemmatizer)
 
-    with open(corrupted_cases_path, 'r', encoding='utf-8') as f:
+    with open(
+        corrupted_cases_path,
+        'r',
+        encoding='utf-8',
+    ) as f:
         corrupted_cases_healer: dict[str, str] = json.load(f)
     
-    with open(clap_rules_path, 'r', encoding='utf-8') as f:
+    with open(
+        clap_rules_path,
+        'r',
+        encoding='utf-8',
+    ) as f:
         clap_rules_dct = json.load(f)
         clap_rules_wrapper: ClapRulesWrapper = ClapRulesWrapper(
             lemmatizer,
             clap_rules_dct,
         )
-
-    control_markup_table: pd.DataFrame = pd.read_csv(control_markup_path, sep='\t')
-    control_accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
-        control_markup_table,
-        clap_rules_wrapper,
-        similarity_wrapper,
-        corrupted_cases_healer,
-    )
     
-    test_markup_table: pd.DataFrame = pd.read_csv(test_markup_path, sep='\t')
-    test_accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(
-        test_markup_table,
+    validator: Validator = Validator(
+        lemmatizer,
         clap_rules_wrapper,
         similarity_wrapper,
         corrupted_cases_healer,
     )
+
+    control_markup_table: pd.DataFrame = pd.read_csv(
+        control_markup_path,
+        sep='\t',
+    )
+    control_accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(control_markup_table)
+    
+    test_markup_table: pd.DataFrame = pd.read_csv(
+        test_markup_path,
+        sep='\t',
+    )
+    test_accuracy_over_label: dict[str, float] = validator.get_accuracy_over_label(test_markup_table)
 
     plot_dir_path: pathlib.Path = repository_dir_path.joinpath("data/processed/plots")
     plot_dir_path.mkdir(
@@ -101,5 +108,6 @@ def validate_markup(  # pylint: disable=[too-many-locals]
         title,
     )
 
+
 if __name__ == '__main__':
-    validate_markup()  # pylint: disable=[no-value-for-parameter]
+    compare_markups()  # pylint: disable=[no-value-for-parameter]
