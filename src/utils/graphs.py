@@ -4,7 +4,11 @@ import math
 import pathlib
 
 import numpy as np
+import seaborn as sns
 from matplotlib import pyplot as plt
+
+
+sns.set()
 
 
 def plot_accuracy_over_class(
@@ -96,7 +100,11 @@ def plot_markups_comparison(
     )
     
     plt.yticks(
-        np.arange(0, 1.0 + 0.1, 0.1),
+        np.arange(
+            0.0,
+            1.0 + 0.1,
+            0.1,
+        ),
         fontsize=20,    
     )
 

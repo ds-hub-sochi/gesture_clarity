@@ -64,3 +64,5 @@ class Validator:
             class_accuracy[true_labels[0]] /= current_file_markup.shape[0]
 
         return class_accuracy
+
+    def 
