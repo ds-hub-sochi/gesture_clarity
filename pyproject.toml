@@ -4,3 +4,18 @@ paths = ["src"]
 ignore_names = ["args", "kwargs", "batch_idx", "pl_module"]
 sort_by_size = true
 verbose = false
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "natasha",
+    "navec",
+    "seaborn",
+    "scipy",
+    "scipy.stats",
+]
+ignore_missing_imports = true

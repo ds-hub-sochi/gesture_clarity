@@ -31,6 +31,7 @@ class NatashaSimilarityWrapper(SimilarityWrapperInterface):
         similarity_score: float,
     ):
         super().__init__()
+
         self._embeddings: Navec = Navec.load(path_to_embeddings_dump)
         self._similatity_score: float = similarity_score
 
@@ -49,7 +50,7 @@ class NatashaSimilarityWrapper(SimilarityWrapperInterface):
         else:
             second_emb = self._embeddings['<unk>']
 
-        return first_emb.T @ second_emb / (np.linalg.norm(first_emb) * np.linalg.norm(second_emb))
+        return float((first_emb.T @ second_emb) / (np.linalg.norm(first_emb) * np.linalg.norm(second_emb)))
 
     def is_similar(
         self,

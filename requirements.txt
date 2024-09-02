@@ -1,12 +1,13 @@
-# local package
-pre-commit==3.0.4
 
 # external requirements
 click
+matplotlib
 natasha
 navec
-matplotlib
-seaborn
-tqdm
 numpy
 pandas
+# local package
+pre-commit==3.0.4
+scipy
+seaborn
+tqdm
